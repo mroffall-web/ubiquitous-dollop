@@ -2,56 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Bridgeland Plum Creek Weather Data</title>
-    <!-- This library reads your 7MB CSV file directly -->
-    <script src="https://cdnjs.cloudflare.com"></script>
+    <title>Weather Data Table</title>
+    <script src="https://cdn.jsdelivr.net"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; margin: 20px; }
-        h2 { color: #333; }
-        #table-container { overflow-x: auto; margin-top: 20px; }
-        table { border-collapse: collapse; width: 100%; font-size: 14px; }
-        th, td { border: 1px solid #dfe2e5; padding: 8px 12px; text-align: left; }
-        th { background-color: #f6f8fa; position: sticky; top: 0; }
-        tr:nth-child(even) { background-color: #fafbfc; }
-        tr:hover { background-color: #f0f3f6; }
+        /* Removes all margins and padding from the page */
+        body, html { margin: 0; padding: 0; font-family: sans-serif; height: 100%; width: 100%; }
+        #table-container { width: 100%; height: 100%; overflow: auto; }
+        table { border-collapse: collapse; width: 100%; font-size: 13px; border-top: none; }
+        th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; white-space: nowrap; }
+        /* Keeps the top row visible while scrolling */
+        th { background-color: #f4f4f4; position: sticky; top: 0; z-index: 1; border-top: none; }
+        tr:nth-child(even) { background-color: #fafafa; }
     </style>
 </head>
 <body>
-    <h2>Weather Data: Bridgeland Plum Creek</h2>
-    <div id="table-container">Loading spreadsheet data...</div>
+    <div id="table-container"></div>
 
     <script>
-        // The script looks for your specific CSV file in the same folder
-        Papa.parse("Cypress_TX_-_Bridgeland_Plum_Creek_4-29-25_WxData.csv", {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: function(results) {
-                if (results.data.length > 0) {
-                    let html = '<table><thead><tr>';
-                    // Create Table Headers
-                    Object.keys(results.data[0]).forEach(key => {
-                        html += `<th>${key}</th>`;
-                    });
-                    html += '</tr></thead><tbody>';
-                    // Create Table Rows
-                    results.data.forEach(row => {
-                        html += '<tr>';
-                        Object.values(row).forEach(val => {
-                            html += `<td>${val || ''}</td>`;
+        function loadData() {
+            const csvFile = "Cypress_TX_-_Bridgeland_Plum_Creek_4-29-25_WxData.csv";
+
+            Papa.parse(csvFile, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    if (results.data && results.data.length > 0) {
+                        let html = '<table><thead><tr>';
+                        Object.keys(results.data[0]).forEach(key => html += `<th>${key}</th>`);
+                        html += '</tr></thead><tbody>';
+                        results.data.forEach(row => {
+                            html += '<tr>';
+                            Object.values(row).forEach(val => html += `<td>${val || ''}</td>`);
+                            html += '</tr>';
                         });
-                        html += '</tr>';
-                    });
-                    html += '</tbody></table>';
-                    document.getElementById('table-container').innerHTML = html;
-                } else {
-                    document.getElementById('table-container').innerHTML = "No data found in CSV.";
+                        html += '</tbody></table>';
+                        document.getElementById('table-container').innerHTML = html;
+                    }
                 }
-            },
-            error: function(err) {
-                document.getElementById('table-container').innerHTML = "Error loading CSV: " + err;
+            });
+        }
+
+        window.onload = function() {
+            if (typeof Papa !== 'undefined') {
+                loadData();
             }
-        });
+        };
     </script>
 </body>
 </html>
